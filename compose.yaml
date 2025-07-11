@@ -15,16 +15,16 @@ services:
     image: exchange1
     ports:
       - "40101:40101"
-    restart: unless-stopped
+    # restart: unless-stopped
 
   exchange2:
     image: exchange2
     ports:
       - "40102:40102"
-    restart: unless-stopped
+    # restart: unless-stopped
 
   exchange3:
     image: exchange3
     ports:
       - "40103:40103"
-    restart: unless-stopped
+    # restart: unless-stopped
