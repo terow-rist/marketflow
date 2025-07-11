@@ -1,0 +1,30 @@
+
+services:
+  app:
+    build: .
+    ports:
+      - 80:8080
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+  # db:
+  exchange1:
+    image: exchange1
+    ports:
+      - "40101:40101"
+    restart: unless-stopped
+
+  exchange2:
+    image: exchange2
+    ports:
+      - "40102:40102"
+    restart: unless-stopped
+
+  exchange3:
+    image: exchange3
+    ports:
+      - "40103:40103"
+    restart: unless-stopped
