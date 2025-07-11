@@ -6,7 +6,7 @@ up:
 	docker compose up -d
 
 down:
-	docker-compose down --volumes
+	docker compose down --volumes
 
 logs:
-	docker-compose logs
+	docker compose logs
