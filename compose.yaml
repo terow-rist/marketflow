@@ -12,19 +12,19 @@ services:
       - DB_PORT=${DB_PORT}
   # db:
   exchange1:
-    image: exchange1
+    image: terow/exchanges:v1
     ports:
       - "40101:40101"
-    # restart: unless-stopped
+    container_name: exchange1
 
   exchange2:
-    image: exchange2
+    image: terow/exchanges:v2
     ports:
       - "40102:40102"
-    # restart: unless-stopped
+    container_name: exchange2
 
   exchange3:
-    image: exchange3
+    image: terow/exchanges:v3
     ports:
       - "40103:40103"
-    # restart: unless-stopped
+    container_name: exchange3
