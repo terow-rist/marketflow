@@ -3,16 +3,31 @@ package service
 import (
 	"log/slog"
 	"marketflow/internal/core/domain"
+	"sync"
 )
 
-// TODO refactor fan out to separate
-func FanOut(in <-chan domain.PriceUpdate, workerCount int, worker func(domain.PriceUpdate)) {
-	for i := 0; i < workerCount; i++ {
-		go func(id int) {
-			for update := range in {
-				slog.Info("Worker processing update", "worker", id, "symbol", update.Symbol, "price", update.Price)
+func FanOut(input <-chan domain.PriceUpdate) <-chan domain.PriceUpdate {
+	out := make(chan domain.PriceUpdate)
+	var wg sync.WaitGroup
+	wg.Add(5)
+	for i := 0; i < 5; i++ {
+		go func() {
+			defer wg.Done()
+			for update := range input {
 				worker(update)
+				out <- update
 			}
-		}(i + 1)
+		}()
 	}
+
+	go func() {
+		wg.Wait()
+		close(out)
+	}()
+
+	return out
+}
+
+func worker(update domain.PriceUpdate) {
+	slog.Info("Processed update", "exchange", update.Exchange, "symbol", update.Symbol, "price", update.Price)
 }

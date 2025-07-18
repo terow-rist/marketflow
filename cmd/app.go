@@ -34,21 +34,22 @@ func Run() {
 	listener2 := exchange.NewListener("exchange2:40102", "exchange2", updates2)
 	listener3 := exchange.NewListener("exchange3:40103", "exchange3", updates3)
 
-	// var wg sync.WaitGroup
-	// wg.Add(3)
 	go listener1.Start()
 	go listener2.Start()
 	go listener3.Start()
-	// wg.Wait()
 
-	fanIn := service.FanIn(updates1, updates2, updates3)
+	pd1 := service.FanOut(updates1)
+	pd2 := service.FanOut(updates2)
+	pd3 := service.FanOut(updates3)
 
-	// temp fanout
-	service.FanOut(fanIn, 5, func(update domain.PriceUpdate) {
-		slog.Info("Processed update", "exchange", update.Exchange, "symbol", update.Symbol, "price", update.Price)
-	})
+	merged := service.FanIn(pd1, pd2, pd3)
+	for update := range merged {
+		slog.Info("Merged update",
+			"exchange", update.Exchange,
+			"symbol", update.Symbol,
+			"price", update.Price)
+	}
 
-	select {}
 	//Futere init db
 
 	//Server setup
