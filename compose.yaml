@@ -10,7 +10,12 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - DB_PORT=${DB_PORT}
+    depends_on:
+      - exchange1
+      - exchange2
+      - exchange3
   # db:
+  
   exchange1:
     image: terow/exchanges:v1
     ports:

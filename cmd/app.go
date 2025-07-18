@@ -1,14 +1,14 @@
 package cmd
 
 import (
-	"bufio"
 	"log"
 	"log/slog"
 	"marketflow/internal/adapter/config"
 	flag "marketflow/internal/adapter/config"
+	"marketflow/internal/adapter/exchange"
 	"marketflow/internal/adapter/logger"
-	"net"
-	"os"
+	"marketflow/internal/core/domain"
+	"marketflow/internal/core/service"
 )
 
 func Run() {
@@ -24,36 +24,38 @@ func Run() {
 	//Set logger
 	logger.Set()
 	slog.Info("Staring application", "app", config.App.Name, "env", config.App.Env)
-	tempCatch()
 
-	// //Futere init db
+	//stream
+	updates1 := make(chan domain.PriceUpdate)
+	updates2 := make(chan domain.PriceUpdate)
+	updates3 := make(chan domain.PriceUpdate)
 
-	// //Server setup
+	listener1 := exchange.NewListener("exchange1:40101", "exchange1", updates1)
+	listener2 := exchange.NewListener("exchange2:40102", "exchange2", updates2)
+	listener3 := exchange.NewListener("exchange3:40103", "exchange3", updates3)
+
+	// var wg sync.WaitGroup
+	// wg.Add(3)
+	go listener1.Start()
+	go listener2.Start()
+	go listener3.Start()
+	// wg.Wait()
+
+	fanIn := service.FanIn(updates1, updates2, updates3)
+
+	// temp fanout
+	service.FanOut(fanIn, 5, func(update domain.PriceUpdate) {
+		slog.Info("Processed update", "exchange", update.Exchange, "symbol", update.Symbol, "price", update.Price)
+	})
+
+	select {}
+	//Futere init db
+
+	//Server setup
 	// temp := httpserver.NewTemp()
 
 	// mux := httpserver.NewRouter(temp)
 	// slog.Info(fmt.Sprintf("Listening on port: %d", flag.Port))
 	// err = http.ListenAndServe(fmt.Sprintf(":%d", flag.Port), mux)
 	// log.Fatal(err)
-}
-
-func tempCatch() {
-	conn, err := net.Dial("tcp", "exchange1:40101") // Connect to exchange1
-	if err != nil {
-		slog.Error("Failed to connect to exchange1", "error", err)
-		os.Exit(1)
-	}
-	defer conn.Close()
-
-	slog.Info("Connected to exchange1")
-
-	scanner := bufio.NewScanner(conn)
-	for scanner.Scan() {
-		msg := scanner.Text()
-		slog.Info("Price update", "data", msg)
-	}
-
-	if err := scanner.Err(); err != nil {
-		slog.Error("Error reading from exchange1", "error", err)
-	}
 }
