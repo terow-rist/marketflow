@@ -1,0 +1,35 @@
+
+services:
+  app:
+    build: .
+    ports:
+      - 80:8080
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+    depends_on:
+      - exchange1
+      - exchange2
+      - exchange3
+  # db:
+  
+  exchange1:
+    image: terow/exchanges:v1
+    ports:
+      - "40101:40101"
+    container_name: exchange1
+
+  exchange2:
+    image: terow/exchanges:v2
+    ports:
+      - "40102:40102"
+    container_name: exchange2
+
+  exchange3:
+    image: terow/exchanges:v3
+    ports:
+      - "40103:40103"
+    container_name: exchange3
