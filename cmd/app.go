@@ -30,19 +30,18 @@ func Run() {
 	updates2 := make(chan domain.PriceUpdate)
 	updates3 := make(chan domain.PriceUpdate)
 
-	listener1 := exchange.NewListener("exchange1:40101", "exchange1", updates1)
-	listener2 := exchange.NewListener("exchange2:40102", "exchange2", updates2)
-	listener3 := exchange.NewListener("exchange3:40103", "exchange3", updates3)
+	go exchange.NewListener("exchange1:40101", "exchange1", updates1).Start()
+	go exchange.NewListener("exchange2:40102", "exchange2", updates2).Start()
+	go exchange.NewListener("exchange3:40103", "exchange3", updates3).Start()
 
-	go listener1.Start()
-	go listener2.Start()
-	go listener3.Start()
+	//service init
+	patternService := service.NewPatternService()
 
-	pd1 := service.FanOut(updates1)
-	pd2 := service.FanOut(updates2)
-	pd3 := service.FanOut(updates3)
+	result1 := patternService.FanOut(updates1)
+	result2 := patternService.FanOut(updates2)
+	result3 := patternService.FanOut(updates3)
 
-	merged := service.FanIn(pd1, pd2, pd3)
+	merged := patternService.FanIn(result1, result2, result3)
 	for update := range merged {
 		slog.Info("Merged update",
 			"exchange", update.Exchange,

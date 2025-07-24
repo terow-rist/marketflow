@@ -1,6 +1,7 @@
 FROM golang:1.24-alpine AS builder
 
-RUN apk add --no-cache build-base
+# temp comment
+# RUN apk add --no-cache build-base  
 
 WORKDIR /app
 

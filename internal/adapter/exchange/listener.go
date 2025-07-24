@@ -26,7 +26,7 @@ func NewListener(address, exchange string, out chan<- domain.PriceUpdate) *Liste
 
 // Not ready yet.
 func (l *Listener) Start() {
-	conn, err := net.Dial("tcp", l.Address) // Connect to exchange1
+	conn, err := net.Dial("tcp", l.Address)
 	if err != nil {
 		slog.Error("Failed to connect", "exchange", l.Exchange, "error", err)
 		os.Exit(1)
