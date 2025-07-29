@@ -3,7 +3,7 @@ package cmd
 import (
 	"log"
 	"log/slog"
-	"marketflow/internal/adapter/config"
+	cfg "marketflow/internal/adapter/config"
 	flag "marketflow/internal/adapter/config"
 	"marketflow/internal/adapter/exchange"
 	"marketflow/internal/adapter/logger"
@@ -15,15 +15,15 @@ func Run() {
 	// Parse flags
 	err := flag.Parse()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to parse flags. %s", err.Error())
 	}
 
 	// Load env variables
-	config := config.New()
+	config := cfg.Init()
 
 	//Set logger
 	logger.Set()
-	slog.Info("Staring application", "app", config.App.Name, "env", config.App.Env)
+	slog.Info("Staring application", "app", config.Info.Name, "env", config.Info.Env)
 
 	//stream
 	updates1 := make(chan domain.PriceUpdate)
@@ -50,6 +50,7 @@ func Run() {
 	}
 
 	//Futere init db
+	//db, err := PostgreSQL.Connect(ctx, config)
 
 	//Server setup
 	// temp := httpserver.NewTemp()

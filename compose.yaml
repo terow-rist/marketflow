@@ -2,34 +2,59 @@
 services:
   app:
     build: .
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: ${DB_PORT}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_DATABASE: ${REDIS_DATABASE}
     ports:
       - 80:8080
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - DB_PORT=${DB_PORT}
     depends_on:
+      - db
+      - redis
       - exchange1
       - exchange2
       - exchange3
-  # db:
+
+
+  redis:
+    image: redis:7
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "${REDIS_PORT}:6379"
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+
+
   
   exchange1:
     image: terow/exchanges:v1
+    container_name: exchange1
     ports:
       - "40101:40101"
-    container_name: exchange1
 
   exchange2:
     image: terow/exchanges:v2
+    container_name: exchange2
     ports:
       - "40102:40102"
-    container_name: exchange2
 
   exchange3:
     image: terow/exchanges:v3
+    container_name: exchange3
     ports:
       - "40103:40103"
-    container_name: exchange3

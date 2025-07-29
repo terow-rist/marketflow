@@ -1,14 +1,18 @@
 package config
 
-import "os"
+import (
+	"os"
+	"strconv"
+)
 
 type (
-	Container struct {
-		App *App
-		DB  *DB
+	App struct {
+		Info  *Info
+		DB    *DB
+		Redis *Redis
 	}
 
-	App struct {
+	Info struct {
 		Name string
 		Env  string
 	}
@@ -21,10 +25,17 @@ type (
 		Password   string
 		Name       string
 	}
+
+	Redis struct {
+		Host     string
+		Port     string
+		Password string
+		Database int
+	}
 )
 
-func New() *Container {
-	app := &App{
+func Init() *App {
+	info := &Info{
 		Name: os.Getenv("APP_NAME"),
 		Env:  os.Getenv("APP_ENV"),
 	}
@@ -38,8 +49,22 @@ func New() *Container {
 		Name:       os.Getenv("DB_NAME"),
 	}
 
-	return &Container{
-		App: app,
-		DB:  db,
+	dbNum, _ := strconv.Atoi(os.Getenv("REDIS_DATABASE"))
+
+	rdb := &Redis{
+		Host:     os.Getenv("REDIS_HOST"),
+		Port:     os.Getenv("REDIS_PORT"),
+		Password: os.Getenv("REDIS_PASSWORD"),
+		Database: dbNum,
 	}
+
+	return &App{
+		Info:  info,
+		DB:    db,
+		Redis: rdb,
+	}
+}
+
+func (r *Redis) Addr() string {
+	return r.Host + ":" + r.Port
 }
